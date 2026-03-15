@@ -1,0 +1,584 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+html {
+    background-color: #1e1e1e;
+}
+body {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0 auto;
+    background-color: #2c2c2c;
+    border-radius: 20px 20px 16px 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border: 1px solid #3d3d3d;
+    display: flex;
+    flex-direction: column;
+}
+.toolbar {
+    background-color: #0f2b3d;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    border-bottom: 1px solid #1e4b62;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.toolbar-left, .toolbar-right {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+.toolbar i {
+    font-size: 1.1rem;
+    color: #c1e4ff;
+    cursor: pointer;
+}
+.toolbar .fa-tableau {
+    font-weight: bold;
+    font-style: normal;
+    background: white;
+    color: #0f2b3d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    cursor: default;
+}
+.dataset-select {
+    background: #1f4b62;
+    border: 1px solid #3d8bb8;
+    color: white;
+    padding: 4px 20px 4px 8px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    cursor: pointer;
+    max-width: 120px;
+}
+.dataset-select option {
+    background: #0f2b3d;
+    color: white;
+}
+.menu-dropdown {
+    position: absolute;
+    top: 45px;
+    left: 12px;
+    background: #1c3343;
+    border: 1px solid #3b6980;
+    border-radius: 16px;
+    padding: 8px 0;
+    width: 180px;
+    box-shadow: 0 8px 16px black;
+    display: none;
+    z-index: 30;
+}
+.menu-dropdown.show {
+    display: block;
+}
+.menu-item {
+    padding: 12px 18px;
+    color: #e1f0fa;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #2b5064;
+    cursor: pointer;
+}
+.menu-item:last-child {
+    border-bottom: none;
+}
+.menu-item i {
+    color: #f5c542;
+}
+.workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    background-color: #1e1e1e;
+}
+.data-panel {
+    width: 100px;
+    flex-shrink: 0;
+    background-color: #252525;
+    padding: 8px 6px;
+    overflow-y: auto;
+    border-right: 1px solid #3e3e3e;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.field-group {
+    margin-bottom: 6px;
+}
+.field-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+.field-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.pill {
+    background-color: #3a3f44;
+    border: 1px solid #555;
+    color: #f0f0f0;
+    padding: 4px 6px;
+    border-radius: 30px;
+    font-size: 0.6rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: background 0.1s;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pill i {
+    color: #6bb7e4;
+    font-size: 0.55rem;
+    flex-shrink: 0;
+}
+.pill.measure i {
+    color: #b5e06b;
+}
+.pill.selected {
+    background-color: #1f5c7a;
+    border-color: #6bbaf0;
+}
+.shelf-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #1f2a32;
+    padding: 4px 6px;
+    border-radius: 12px;
+    border-left: 3px solid #2b7eb0;
+    margin-bottom: 6px;
+    cursor: pointer;
+    width: 100%;
+    overflow: hidden;
+}
+.shelf-icon {
+    color: #6fb4e0;
+    font-size: 0.7rem;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.shelf-placeholder {
+    background-color: #2d3b45;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.6rem;
+    color: #b0c7d9;
+    border: 1px dashed #4f6f86;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.marks-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #202b33;
+    margin-top: 8px;
+    padding: 8px 6px;
+    border-radius: 18px;
+    border: 1px solid #3c5768;
+}
+.mark-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #2f404d;
+    padding: 4px 8px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.6rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mark-item i {
+    color: #f5c542;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+}
+.canvas-area {
+    flex: 1;
+    background-color: #1e1e1e;
+    padding: 8px 8px 0 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.dataset-header {
+    background-color: #1f3a48;
+    border-radius: 30px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #c1e4ff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #2b5c7a;
+    flex-shrink: 0;
+}
+.dataset-header i {
+    color: #f5c542;
+    font-size: 0.8rem;
+}
+.chart-card {
+    background-color: #2a2a2a;
+    border-radius: 20px;
+    padding: 10px 6px 6px 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+    width: 100%;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+.viz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px 8px 6px;
+    color: #b6d6f0;
+    font-size: 0.7rem;
+    border-bottom: 1px solid #3a4b56;
+}
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 170px;
+    margin-top: 6px;
+}
+.control-row {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.ctrl-btn {
+    background: #324a5a;
+    border: none;
+    color: white;
+    padding: 4px 5px;
+    border-radius: 30px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #4e6d82;
+    flex: 1 0 auto;
+    justify-content: center;
+    cursor: pointer;
+}
+.field-selector {
+    display: flex;
+    gap: 4px;
+    background: #1a2933;
+    padding: 6px 4px;
+    border-radius: 30px;
+    margin: 6px 0 0;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+}
+.selector label {
+    color: #9cc4e4;
+    font-size: 0.5rem;
+    text-transform: uppercase;
+}
+.field-selector select {
+    background: #2a404e;
+    border: 1px solid #3d6b82;
+    color: white;
+    padding: 4px 16px 4px 6px;
+    border-radius: 30px;
+    font-size: 0.6rem;
+    font-weight: 500;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23aaccff" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    width: 100%;
+}
+.sheet-bar {
+    display: flex;
+    align-items: center;
+    background-color: #1a2a34;
+    border-top: 1px solid #2d4c60;
+    border-bottom: 1px solid #0f1e28;
+    padding: 4px 8px;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-shrink: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #3d6377 #1a2a34;
+    margin-top: auto;
+}
+.sheet-bar::-webkit-scrollbar {
+    height: 4px;
+}
+.sheet-bar::-webkit-scrollbar-thumb {
+    background: #3d6377;
+    border-radius: 10px;
+}
+.sheet-tab {
+    background-color: #253b48;
+    border: 1px solid #2b5064;
+    color: #cde1f0;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.sheet-tab.active {
+    background-color: #1f5c7a;
+    border-color: #6bbaf0;
+    color: white;
+}
+.sheet-tab i {
+    font-size: 0.6rem;
+    color: #f5c542;
+}
+.sheet-add {
+    background-color: #1f3a48;
+    border: 1px dashed #4f7e9c;
+    color: #b3defa;
+    padding: 6px 10px;
+    border-radius: 30px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.status-bar {
+    background: #14212b;
+    padding: 6px 14px;
+    color: #8ba0b2;
+    font-size: 0.6rem;
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid #2d4a5a;
+    flex-shrink: 0;
+}
+body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: calc(env(safe-area-inset-bottom) - 40px);
+    overflow: hidden;
+}
+.status-bar {
+    padding-bottom: 15px;
+}
+
+/* Modal overlay */
+.chart-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    width: 90vw;
+    max-width: 500px;  /* keep similar to original card width */
+    background-color: #2a2a2a;
+    border-radius: 20px;
+    padding: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+/* When chart card is inside modal, it should fill the modal-content */
+.modal-content .chart-card {
+    width: 100%;
+    margin: 0;
+    box-shadow: none;
+    background-color: #2a2a2a;
+}
+
+/* Expand button cursor */
+#expandChartBtn {
+    cursor: pointer;
+}
+
+/* Excel-like sheet bar */
+.sheet-bar {
+    display: flex;
+    align-items: flex-end;       /* tabs sit at bottom of bar */
+    background-color: #2d3c4a;   /* darker tab bar background */
+    border-top: 1px solid #1a2a34;
+    padding: 0 8px 0 0px;
+    gap: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-shrink: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #3d6377 #2d3c4a;
+    min-height: 36px;            /* give some height for tabs */
+}
+
+.sheet-bar::-webkit-scrollbar {
+    height: 4px;
+}
+.sheet-bar::-webkit-scrollbar-thumb {
+    background: #3d6377;
+    border-radius: 10px;
+}
+
+/* Base tab style */
+.sheet-tab {
+    background-color: #3a4a5a;    /* inactive tab */
+    border: 1px solid #1a2a34;
+    border-bottom: none;           /* no bottom border – bar provides it */
+    color: #ddd;
+    padding: 6px 6px;
+    border-radius: 8px 8px 0 0;    /* rounded top corners only */
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    height:100%;
+    margin-bottom: -1px;            /* overlap bar border to look attached */
+}
+
+/* Active tab – mimics Excel white tab */
+.sheet-tab.active {
+    background-color: #1e1e1e;      /* match canvas background */
+    color: white;
+    border-color: #1a2a34 #1a2a34 #1e1e1e #1a2a34; /* bottom border matches background */
+    z-index: 2;
+    position: relative;
+    transform: translateY(1px);      /* slight lift to cover bar border */
+}
+
+/* Add new tab button – styled like inactive but with dashed border */
+.sheet-add {
+    background-color: #2a3b4a;
+    border: 1px dashed #4f7e9c;
+    border-bottom: none;
+    color: #b3defa;
+    padding: 6px 12px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.7rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: -1px;
+}
+
+.sheet-add:hover {
+    background-color: #324f63;
+}
+.canvas-area .mark-item{
+color:white;
+}
+/* Active field (currently in use) */
+.pill.selected {
+    background-color: #1f5c7a;
+    border-color: #6bbaf0;
+    box-shadow: 0 0 0 2px rgba(107, 186, 240, 0.3);
+}
+
+/* Dragged pill (waiting to be dropped) */
+.pill.dragged {
+    background-color: #b85c1a;   /* orange-brown */
+    border-color: #f0a56b;
+    box-shadow: 0 0 0 2px rgba(240, 165, 107, 0.5);
+}
+.field-pills{
+row-gap:8px;
+}
+#marksCard{
+flex-direction:row;
+}
+.mark-item{
+flex-direction:column;
+flex:1;
+border-radius:8px;
+}
+.mark-item span:nth-child(2){
+font-weight:700;
+border-bottom:1px solid rgb(170,170,170);
+}
+.mark-item i{
+margin-right:4px;
+}
+.marks-card{
+margin-bottom:15px;
+}
+#datasetSelector{
+max-width: 100%;
+background-color: transparent;
+}
+
