@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>FIFA World rankings · Flourish (clone)</title>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Font: Lato (main font) -->
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fb;
+      color: #1a2639;
+      line-height: 1.4;
+    }
+
+    /* mobile-first wrapper */
+    .app {
+      max-width: 480px;  /* typical mobile width, stretches on larger */
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eef2f6;
+      background: white;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .flourish-logo {
+      background: #1a1f35;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 4px 10px;
+      border-radius: 24px;
+      letter-spacing: -0.02em;
+    }
+    .flourish-logo span {
+      font-weight: 300;
+      margin-left: 2px;
+    }
+    .title-meta {
+      font-size: 0.85rem;
+      color: #5b687b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 16px;
+      color: #3f4b5e;
+    }
+    .header-actions i {
+      font-size: 1.1rem;
+    }
+
+    /* tabs */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid #eef2f6;
+      background: white;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #68788c;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.1s;
+    }
+    .tab.active {
+      color: #1a2639;
+      border-bottom-color: #2b6f9b;
+    }
+    .tab i {
+      margin-right: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* main panes */
+    .pane {
+      display: none;
+      padding: 16px;
+      background: #f9fcff;
+    }
+    .pane.active {
+      display: block;
+    }
+
+    /* PREVIEW PANE – two column layout (editor + side panel) */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 640px) {
+      .app { max-width: 900px; }
+      .preview-grid {
+        grid-template-columns: 1fr 300px;
+      }
+    }
+
+    /* editor / preview area */
+    .editor {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e6ecf3;
+      overflow: hidden;
+    }
+    .preview-holder {
+      background: #f0f4fa;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      position: relative;
+    }
+    .loading-spinner svg {
+      width: 50px;
+      height: 50px;
+    }
+    .loading-spinner path {
+      fill: #1a2639;
+    }
+    .preview-iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+      background: white;
+      margin-top: 8px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* side panel – settings blocks */
+    .side-panel {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e6ecf3;
+      padding: 16px;
+    }
+    .current-template {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .current-template h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .current-template-name a {
+      color: #1a2639;
+      text-decoration: none;
+    }
+    .current-template-version {
+      font-size: 0.8rem;
+      color: #8596aa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .current-template-version button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #3f4b5e;
+    }
+
+    /* theme row */
+    .template-theme .settings-block {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+    .settings-option {
+      margin-bottom: 16px;
+    }
+    .settings-option label h3 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #3f4b5e;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-option input[type="text"],
+    .settings-option select,
+    .settings-option textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d0dae8;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      background: white;
+    }
+    .buttons-container {
+      display: flex;
+      gap: 4px;
+    }
+    .buttons-container input[type="radio"] {
+      display: none;
+    }
+    .buttons-container label {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      background: #f0f4fa;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #1a2639;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .buttons-container input[type="radio"]:checked + label {
+      background: #2b6f9b;
+      color: white;
+      border-color: #2b6f9b;
+    }
+
+    /* slider toggle */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .slider-container label h3 {
+      margin-bottom: 0;
+    }
+    .slider {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      background: #d0dae8;
+      border-radius: 22px;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .slider::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+    input:checked + .slider {
+      background: #2b6f9b;
+    }
+    input:checked + .slider::after {
+      left: 20px;
+    }
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    /* color swatches */
+    .color-swatches {
+      display: flex;
+      gap: 4px;
+      margin: 8px 0;
+    }
+    .color-swatches span {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #d0dae8;
+    }
+    .dropdown-autocomplete {
+      position: relative;
+    }
+    .dropdown-autocomplete i {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8596aa;
+      pointer-events: none;
+    }
+
+    /* DATA PANE */
+    .data-tabs {
+      display: flex;
+      border-bottom: 1px solid #e6ecf3;
+      margin-bottom: 16px;
+    }
+    .sheet-tab {
+      padding: 10px 16px;
+      background: #f0f4fa;
+      border: 1px solid #e6ecf3;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a2639;
+      margin-right: 4px;
+      cursor: default;
+    }
+    .sheet-tab i {
+      margin-left: 8px;
+      color: #8596aa;
+    }
+    .data-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 640px) {
+      .data-container {
+        grid-template-columns: 240px 1fr;
+      }
+    }
+    .data-sidebar {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e6ecf3;
+      padding: 16px;
+    }
+    .import-data {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0f4fa;
+      padding: 8px 12px;
+      border-radius: 30px;
+      margin-bottom: 16px;
+    }
+    .import-data .btn {
+      background: #2b6f9b;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      border: none;
+      cursor: default;
+    }
+    .data-bindings h2 {
+      font-size: 1rem;
+      margin: 16px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .data-binding-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .data-binding-title h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #3f4b5e;
+    }
+    .required {
+      color: #d4742c;
+      font-size: 0.7rem;
+      font-weight: 400;
+      margin-left: 6px;
+    }
+    .data-binding-title input {
+      width: 100%;
+      margin-top: 4px;
+      padding: 6px 8px;
+      border: 1px solid #d0dae8;
+      border-radius: 20px;
+    }
+    .data-binding-description {
+      font-size: 0.75rem;
+      color: #68788c;
+      margin-top: 2px;
+    }
+
+    /* spreadsheet simulation */
+    .spreadsheet {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e6ecf3;
+      overflow-x: auto;
+    }
+    .spreadsheet table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 600px;
+    }
+    .spreadsheet th {
+      background: #f0f4fa;
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #d0dae8;
+      position: sticky;
+      top: 0;
+      background: #f0f4fa;
+    }
+    .spreadsheet td {
+      padding: 8px;
+      border-bottom: 1px solid #eef2f6;
+    }
+    .spreadsheet .row-header {
+      background: #f9fcff;
+      font-weight: 600;
+      color: #3f4b5e;
+      border-right: 1px solid #d0dae8;
+    }
+    .type-symbol {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: #8596aa;
+      border-radius: 3px;
+      margin-right: 4px;
+      vertical-align: middle;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>');
+      background-size: 12px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* footer */
+    .footer {
+      border-top: 1px solid #eef2f6;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #8596aa;
+      background: white;
+    }
+
+    /* collapsible settings blocks */
+    .settings-block {
+      border-bottom: 1px solid #eef2f6;
+      padding: 12px 0;
+    }
+    .settings-block h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .settings-block h2 i {
+      font-size: 0.8rem;
+      transition: transform 0.2s;
+    }
+    .settings-block.collapsed .settings-content {
+      display: none;
+    }
+    .settings-block.collapsed h2 i {
+      transform: rotate(-90deg);
+    }
+    .settings-content {
+      margin-top: 12px;
+    }
+    .help-tip {
+      color: #8596aa;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- header -->
+    <header class="header">
+      <div class="logo-area">
+        <div class="flourish-logo">flourish<span>•</span></div>
+        <div class="title-meta">
+          <i class="fa-regular fa-lock-open"></i>
+          <span>Public</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+      </div>
+      <div class="header-actions">
+        <i class="fa-regular fa-share-from-square"></i>
+        <i class="fa-regular fa-pen-to-square"></i>
+        <i class="fa-regular fa-circle-user"></i>
+      </div>
+    </header>
+
+    <!-- tab bar -->
+    <div class="tab-bar">
+      <div class="tab active" data-pane="preview"><i class="fa-regular fa-eye"></i> Preview</div>
+      <div class="tab" data-pane="data"><i class="fa-regular fa-table"></i> Data</div>
+    </div>
+
+    <!-- preview pane -->
+    <div id="pane-preview" class="pane active">
+      <div class="preview-grid">
+        <!-- editor / preview -->
+        <div class="editor">
+          <div class="preview-holder">
+            <div class="loading-spinner">
+              <svg viewBox="0 0 4450 4450" width="50" height="50">
+                <g transform="matrix(1,0,0,1,657,3093.75)">
+                  <path d="M101.75,-435.35 C125.48,-435.36 144.74,-416.1 144.74,-392.37 L144.51,382.75 C144.51,406.48 125.23,425.76 101.5,425.77 L-117.75,425.85 C-141.48,425.86 -160.74,406.6 -160.74,382.87 L-160.51,-392.25 C-160.51,-415.98 -141.23,-435.26 -117.5,-435.27 L101.75,-435.35z" fill="#1a2639"/>
+                </g>
+              </svg>
+            </div>
+            <iframe class="preview-iframe" srcdoc="<html><body style='display:flex;align-items:center;justify-content:center;font-family:Lato;color:#1a2639;'>Bar chart race preview</body></html>"></iframe>
+          </div>
+          <!-- resize overlay etc (simplified) -->
+        </div>
+
+        <!-- side panel -->
+        <aside class="side-panel">
+          <div class="current-template">
+            <h1><a href="#" class="current-template-name">Bar chart race</a></h1>
+            <div class="current-template-version">
+              v15.11.1
+              <button><img src="https://public.flourish.studio/resources/images/refresh.svg" alt="Refresh" width="16"></button>
+            </div>
+          </div>
+
+          <!-- theme -->
+          <div class="template-theme">
+            <div class="settings-block">
+              <div class="settings-option" style="width:87.5%">
+                <label><h3>Theme <i class="fa-regular fa-circle-question help-tip"></i></h3></label>
+                <input type="text" value="" placeholder="No theme" class="single-select">
+              </div>
+              <div class="settings-option" style="width:12.5%">
+                <button class="single-button" disabled><i class="fa-solid fa-rotate-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- collapsible settings blocks -->
+          <div class="settings-block">
+            <h2>Setup <i class="fa-solid fa-chevron-down"></i></h2>
+            <div class="settings-content">
+              <div class="settings-option">
+                <label><h3>Chart style</h3></label>
+                <div class="buttons-container">
+                  <input type="radio" name="chart_style" id="horiz" checked><label for="horiz">Horizontal</label>
+                  <input type="radio" name="chart_style" id="vert"><label for="vert">Vertical</label>
+                </div>
+              </div>
+              <div class="settings-option">
+                <label><h3>No. bars</h3></label>
+                <input type="number" value="10" min="1">
+              </div>
+              <div class="settings-option">
+                <label><h3>Spacing (%)</h3></label>
+                <input type="number" value="20" min="0">
+              </div>
+              <div class="settings-option slider-container">
+                <label><h3>Show advanced</h3></label>
+                <input type="checkbox" id="show_adv"><label for="show_adv" class="slider"></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h2>Colors <i class="fa-solid fa-chevron-down"></i></h2>
+            <div class="settings-content">
+              <div class="settings-option">
+                <label><h3>Color mode</h3></label>
+                <div class="buttons-container">
+                  <input type="radio" name="color_mode" id="cat" checked><label for="cat">By category</label>
+                  <input type="radio" name="color_mode" id="bar"><label for="bar">By bar</label>
+                  <input type="radio" name="color_mode" id="single"><label for="single">Single</label>
+                </div>
+              </div>
+              <div class="settings-option">
+                <label><h3>Palette</h3></label>
+                <div class="color-swatches">
+                  <span style="background:#cd040b"></span>
+                  <span style="background:#0391ce"></span>
+                  <span style="background:#fbbc0e"></span>
+                  <span style="background:#21912e"></span>
+                  <span style="background:#00529e"></span>
+                  <span style="background:#5d1a89"></span>
+                </div>
+                <div class="dropdown-autocomplete">
+                  <input type="text" value="#cd040b|#0391ce|#fbbc0e|..." placeholder="Edit palette">
+                  <i class="fa-solid fa-chevron-down"></i>
+                </div>
+              </div>
+              <div class="settings-option slider-container">
+                <label><h3>Extend</h3></label>
+                <input type="checkbox" id="extend"><label for="extend" class="slider"></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h2>Labels <i class="fa-solid fa-chevron-down"></i></h2>
+            <div class="settings-content">
+              <div class="settings-option">
+                <label><h3>Labels mode</h3></label>
+                <select>
+                  <option>Labels in axis (images on bars)</option>
+                  <option>Labels on bars (images in axis)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- additional blocks can be added similarly -->
+        </aside>
+      </div>
+    </div>
+
+    <!-- data pane -->
+    <div id="pane-data" class="pane">
+      <div class="data-tabs">
+        <div class="sheet-tab">Data <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="sheet-tab">Captions <i class="fa-solid fa-chevron-down"></i></div>
+      </div>
+      <div class="data-container">
+        <div class="data-sidebar">
+          <div class="import-data">
+            <span class="btn"><i class="fa-regular fa-upload"></i> Upload data</span>
+            <span class="btn arrow"><i class="fa-solid fa-chevron-down"></i></span>
+          </div>
+          <div class="data-bindings">
+            <h2><i class="fa-regular fa-table"></i> Data</h2>
+            <div class="settings-option">
+              <div class="data-binding-title">
+                <h3>Label <span class="required">Required</span></h3>
+              </div>
+              <input type="text" value="A" style="background:#ffe6ed; border-color:#f4b1c5;">
+              <div class="data-binding-description">A column containing the names of the bars</div>
+            </div>
+            <div class="settings-option">
+              <div class="data-binding-title">
+                <h3>Values</h3>
+              </div>
+              <input type="text" value="G-DG" style="background:#e3d9f0; border-color:#967ec6;">
+            </div>
+            <div class="settings-option">
+              <div class="data-binding-title">
+                <h3>Categories</h3>
+              </div>
+              <input type="text" value="" style="background:#f0d6ea; border-color:#c67ebd;">
+            </div>
+            <div class="settings-option">
+              <div class="data-binding-title">
+                <h3>Image</h3>
+              </div>
+              <input type="text" value="F" style="background:#dee6f0; border-color:#7e91c6;">
+            </div>
+          </div>
+        </div>
+        <div class="spreadsheet">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th><span class="type-symbol"></span> A <i class="fa-solid fa-caret-down"></i></th>
+                <th><span class="type-symbol"></span> B <i class="fa-solid fa-caret-down"></i></th>
+                <th><span class="type-symbol"></span> C <i class="fa-solid fa-caret-down"></i></th>
+                <th><span class="type-symbol"></span> D <i class="fa-solid fa-caret-down"></i></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="row-header">1</td><td>Name</td><td>Row Labels</td><td>Region</td><td>Region</td></tr>
+              <tr><td class="row-header">2</td><td>Argentina</td><td>Argentina</td><td>Americas</td><td>CONMEBOL</td></tr>
+              <tr><td class="row-header">3</td><td>Brazil</td><td>Brazil</td><td>Americas</td><td>CONMEBOL</td></tr>
+              <tr><td class="row-header">4</td><td>Chile</td><td>Chile</td><td>Americas</td><td>CONMEBOL</td></tr>
+              <tr><td class="row-header">5</td><td>Colombia</td><td>Colombia</td><td>Americas</td><td>CONMEBOL</td></tr>
+              <tr><td class="row-header">6</td><td>Costa Rica</td><td>Costa Rica</td><td>Americas</td><td>CONCACAF</td></tr>
+            </tbody>
+          </table>
+          <div style="padding:12px; display:flex; justify-content:space-between; border-top:1px solid #eef2f6;">
+            <div><i class="fa-regular fa-plus"></i> Add rows</div>
+            <div><i class="fa-regular fa-magnifying-glass"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <footer class="footer">
+      <div><i class="fa-regular fa-chart-bar"></i> Flourish • FIFA rankings</div>
+      <div>
+        <i class="fa-regular fa-image"></i>
+        <i class="fa-regular fa-code"></i>
+        <i class="fa-regular fa-maximize"></i>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const panes = {
+      preview: document.getElementById('pane-preview'),
+      data: document.getElementById('pane-data')
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const paneId = tab.dataset.pane;
+        Object.values(panes).forEach(p => p.classList.remove('active'));
+        panes[paneId].classList.add('active');
+      });
+    });
+
+    // Collapsible settings blocks
+    const settingsBlocks = document.querySelectorAll('.settings-block');
+    settingsBlocks.forEach(block => {
+      const header = block.querySelector('h2');
+      if (!header) return;
+      header.addEventListener('click', () => {
+        block.classList.toggle('collapsed');
+      });
+    });
+
+    // optional: make some blocks collapsed initially
+    document.querySelectorAll('.settings-block').forEach((block, idx) => {
+      if (idx > 1) block.classList.add('collapsed'); // collapse all except first two
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Visualization Dashboard</title>
+    <!-- Importing Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Importing Bootstrap for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <style>
+        /* Container for the entire dashboard */
+        .dashboard {
+            max-width: 1200px; /* Increased maximum width */
+            margin: auto;
+            background: #f8f9fa; /* Light background color */
+            padding: 20px;
+            border: 1px solid #dee2e6; /* Light border color */
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* Section for the controls like filtering and sorting */
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        /* Style for the control elements (buttons, select, etc.) */
+        .control {
+            padding: 10px;
+            margin: 0 10px;
+            border: 1px solid #dee2e6; /* Light border color */
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Style for the chart container */
+        .chart-container {
+            position: relative;
+            height: 500px; /* Increased chart height */
+        }
+
+        /* Style for the information box */
+        .info-box {
+            text-align: left;
+            background: #ffffff;
+            border: 1px solid #dee2e6; /* Light border color */
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<!-- Dashboard container -->
+<div class="dashboard">
+    <!-- Controls for filtering and sorting -->
+    <!-- Controls for filtering and sorting -->
+    <div class="controls">
+        <!-- Button to reload data -->
+        <button class="control btn btn-primary" onclick="loadData()">Reload Data</button>
+        <!-- Dropdown for sorting -->
+        <select class="control form-select" id="sortSelect" onchange="sortData()">
+            <option value="name">Sort by Name</option>
+            <option value="value">Sort by Value</option>
+        </select>
+        <!-- Dropdown for filtering -->
+        <select class="control form-select" id="filterSelect" onchange="filterData()">
+            <option value="all">Show All</option>
+            <option value="highValue">High Value</option>
+            <option value="lowValue">Low Value</option>
+        </select>
+        <!-- Button to toggle dark/light mode -->
+        <button class="control btn btn-primary" onclick="toggleMode()">Toggle Dark/Light Mode</button>
+    </div>
+
+    <!-- Container for the chart -->
+    <div class="chart-container">
+        <canvas id="myChart"></canvas> <!-- Chart.js canvas -->
+    </div>
+
+    <!-- Information box to display details -->
+    <div class="info-box" id="infoBox">
+        Select a data point to see details. <!-- Default text -->
+    </div>
+</div>
+
+<!-- TypeScript for dashboard logic -->
+<script>
+    // Chart.js instance variable
+    let myChart;
+
+    // Sample data to simulate an API response
+    let data = [
+        { name: 'Product A', value: 10 },
+        { name: 'Product B', value: 20 },
+        { name: 'Product C', value: 15 },
+        { name: 'Product D', value: 30 },
+        { name: 'Product E', value: 25 }
+    ];
+
+    // Function to initialize the chart
+    function initChart() {
+        const ctx = document.getElementById('myChart').getContext('2d'); // Get the canvas context
+
+        myChart = new Chart(ctx, {
+            type: 'bar', // Use a bar chart
+            data: {
+                labels: data.map(item => item.name), // Set labels from data names
+                datasets: [{
+                    label: 'Value', // Dataset label
+                    data: data.map(item => item.value), // Set data from item values
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)', // Set the color
+                    borderColor: 'rgba(75, 192, 192, 1)', // Border color
+                    borderWidth: 1 // Border width
+                }]
+            },
+            options: {
+                responsive: true, // Responsive layout
+                maintainAspectRatio: false, // Disable aspect ratio constraint
+                scales: {
+                    y: {
+                        beginAtZero: true // Start y-axis at 0
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                return `${label}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                onClick: (evt, item) => {
+                    // Handle click events on the chart
+                    const index = item[0].index; // Get the clicked index
+                    const selectedData = data[index]; // Get the selected data
+                    displayInfo(selectedData); // Display the selected data info
+                }
+            }
+        });
+    }
+
+    // Function to display information in the info box
+    function displayInfo(selectedData) {
+        const infoBox = document.getElementById('infoBox'); // Get the info box
+        infoBox.innerHTML = `Product: ${selectedData.name}, Value: ${selectedData.value}`; // Update the text
+    }
+
+    // Function to load/reload the data
+    function loadData() {
+        // Simulating a data fetch (could be an API call in a real app)
+        data = [
+            { name: 'Product A', value: 10 },
+            { name: 'Product B', value: 20 },
+            { name: 'Product C', value: 15 },
+            { name: 'Product D', value: 30 },
+            { name: 'Product E', value: 25 }
+        ];
+
+        // Update the chart data
+        myChart.data.labels = data.map(item => item.name); // Update labels
+        myChart.data.datasets[0].data = data.map(item => item.value); // Update values
+        myChart.update(); // Refresh the chart
+    }
+
+    // Function to sort data
+    function sortData() {
+        const sortSelect = document.getElementById('sortSelect'); // Get the sort selector
+        const sortOption = sortSelect.value; // Get the selected option
+
+        // Sort the data based on the selected option
+        data.sort((a, b) => {
+            if (sortOption === 'name') {
+                return a.name.localeCompare(b.name); // Sort by name
+            } else {
+                return a.value - b.value; // Sort by value
+            }
+        });
+
+        // Update the chart data
+        myChart.data.labels = data.map(item => item.name); // Update labels
+        myChart.data.datasets[0].data = data.map(item => item.value); // Update values
+        myChart.update(); // Refresh the chart
+    }
+
+    // Function to filter data
+    function filterData() {
+        const filterSelect = document.getElementById('filterSelect'); // Get the filter selector
+        const filterOption = filterSelect.value; // Get the selected option
+
+        // Filter the data based on the selected option
+        let filteredData = data;
+        if (filterOption === 'highValue') {
+            filteredData = data.filter(item => item.value > 20); // Filter high values
+        } else if (filterOption === 'lowValue') {
+            filteredData = data.filter(item => item.value <= 20); // Filter low values
+        }
+
+        // Update the chart data
+        myChart.data.labels = filteredData.map(item => item.name); // Update labels
+        myChart.data.datasets[0].data = filteredData.map(item => item.value); // Update values
+        myChart.update(); // Refresh the chart
+    }
+
+    // Initialize the chart when the page loads
+    initChart();
+
+    // Function to toggle the light/dark mode
+    function toggleMode() {
+        const body = document.body;
+        body.classList.toggle('dark-mode');
+
+        const isDarkMode = body.classList.contains('dark-mode');
+
+        // Update chart colors based on the mode
+        const backgroundColor = isDarkMode ? 'rgba(75, 192, 192, 0.4)' : 'rgba(75, 192, 192, 0.6)';
+        const borderColor = isDarkMode ? 'rgba(75, 192, 192, 0.8)' : 'rgba(75, 192, 192, 1)';
+
+        myChart.data.datasets[0].backgroundColor = backgroundColor;
+        myChart.data.datasets[0].borderColor = borderColor;
+        myChart.update();
+    }
+</script>
+
+<style>
+    /* Light/dark mode styles */
+    .dark-mode {
+        background-color: #343a40;
+        color: #f8f9fa;
+    }
+
+    .dark-mode .dashboard {
+        background-color: #212529;
+        border-color: #495057;
+    }
+
+    .dark-mode .control {
+        background-color: #495057;
+        color: #f8f9fa;
+        border-color: #6c757d;
+    }
+
+    .dark-mode .info-box {
+        background-color: #343a40;
+        border-color: #495057;
+        color: #f8f9fa;
+    }
+</style>
+</body>
+</html>

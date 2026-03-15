@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>FIFA World rankings · Flourish</title>
+    <!-- Font & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for sample chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1a2639;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* MOBILE-FIRST LAYOUT */
+        .app-wrapper {
+            max-width: 480px;  /* typical mobile width, but will stretch on larger screens */
+            margin: 0 auto;
+            width: 100%;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* HEADER (Flourish style) */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid #eef2f6;
+            background: white;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .flourish-logo {
+            background: linear-gradient(135deg, #2b2e4a, #1a1f35);
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 24px;
+            letter-spacing: -0.02em;
+            display: inline-block;
+        }
+        .flourish-logo span {
+            font-weight: 300;
+            margin-left: 2px;
+        }
+        .title-meta {
+            font-size: 0.9rem;
+            color: #5b687b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .title-meta i {
+            font-size: 0.7rem;
+            color: #8596aa;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            color: #3f4b5e;
+        }
+        .header-actions i {
+            font-size: 1.1rem;
+        }
+        /* MAIN VISUAL SECTION */
+        .visualization-container {
+            padding: 16px;
+            flex: 1;
+        }
+        .title-section {
+            margin-bottom: 16px;
+        }
+        .title-section h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: #eef2f6;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #3f4b5e;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .last-updated {
+            font-size: 0.8rem;
+            color: #68788c;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        /* FILTER BAR (mobile friendly) */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0 20px;
+            background: #f8fafd;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #e6ecf3;
+        }
+        .filter-item {
+            flex: 1 1 120px;
+            min-width: 130px;
+        }
+        .filter-item label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #68788c;
+            margin-bottom: 2px;
+        }
+        .filter-item select, .filter-item input {
+            width: 100%;
+            padding: 8px 8px;
+            border-radius: 30px;
+            border: 1px solid #d0dae8;
+            background: white;
+            font-size: 0.9rem;
+            color: #1a2639;
+            outline: none;
+        }
+        .filter-item select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 8"><path fill="%233f4b5e" d="M6 8L0 0h12z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 10px;
+        }
+        /* CHART CARD */
+        .chart-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #edf2f9;
+            padding: 20px 12px 12px 12px;
+            margin-bottom: 20px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 0 4px;
+        }
+        .chart-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2f3a4c;
+        }
+        .chart-header .legend {
+            display: flex;
+            gap: 16px;
+            font-size: 0.75rem;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 10px;
+            background: #2b6f9b;
+            margin-right: 4px;
+        }
+        .legend-color.rank {
+            background: #d4742c;
+        }
+        /* canvas wrapper for responsiveness */
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: auto;
+            min-height: 250px;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
+            max-height: 300px;
+        }
+        /* TABLE / DATA SUMMARY (mobile) */
+        .data-summary {
+            background: #f9fcff;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #e2ebf6;
+        }
+        .summary-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #1a2b3e;
+        }
+        .ranking-list {
+            list-style: none;
+        }
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e6eefb;
+        }
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+        .rank-number {
+            width: 32px;
+            font-weight: 600;
+            color: #3f4b5e;
+            font-size: 0.9rem;
+        }
+        .country-flag {
+            width: 28px;
+            height: 20px;
+            background: #d9e2ef;
+            border-radius: 4px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5b6f8a;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+        .country-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .points {
+            font-weight: 600;
+            color: #1a2639;
+            background: #eef2f6;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+        /* FOOTER (Flourish credits) */
+        .footer {
+            border-top: 1px solid #eef2f6;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #8596aa;
+            background: white;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .footer-left i {
+            margin-right: 4px;
+        }
+        .footer-right a {
+            color: #3f4b5e;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+        /* larger screen adjustments */
+        @media (min-width: 640px) {
+            .app-wrapper {
+                max-width: 800px;
+                margin: 20px auto;
+                border-radius: 32px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            }
+            .visualization-container {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- header -->
+        <header class="header">
+            <div class="logo-area">
+                <div class="flourish-logo">flourish<span>•</span></div>
+                <div class="title-meta">
+                    <i class="fas fa-lock-open" style="opacity:0.6;"></i>
+                    <span>Public</span>
+                    <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i>
+                </div>
+            </div>
+            <div class="header-actions">
+                <i class="far fa-share-square"></i>
+                <i class="far fa-edit"></i>
+                <i class="far fa-user-circle"></i>
+            </div>
+        </header>
+
+        <!-- main content -->
+        <main class="visualization-container">
+            <!-- title & description -->
+            <div class="title-section">
+                <h1>
+                    FIFA World rankings
+                    <span class="badge"><i class="fas fa-futbol"></i> Men's</span>
+                </h1>
+                <div class="last-updated">
+                    <i class="far fa-calendar-alt"></i> Latest ranking: 15 March 2026
+                    <span style="margin-left: auto;"><i class="fas fa-link"></i> Embed</span>
+                </div>
+            </div>
+
+            <!-- filter / control bar (mobile first) -->
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <label>Date</label>
+                    <select id="dateSelect">
+                        <option>March 2026</option>
+                        <option>February 2026</option>
+                        <option>January 2026</option>
+                        <option>December 2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Ranking type</label>
+                    <select id="typeSelect">
+                        <option>Overall</option>
+                        <option>Confederation</option>
+                        <option>Points progression</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Teams</label>
+                    <input type="text" placeholder="Search country" value="">
+                </div>
+            </div>
+
+            <!-- main chart card -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Top 10 rankings <span style="font-weight:normal; color:#68788c; margin-left:6px;">points</span></h3>
+                    <div class="legend">
+                        <span><span class="legend-color"></span> Points</span>
+                        <span><span class="legend-color rank"></span> Rank</span>
+                    </div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="rankingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- summary table (mobile friendly list) -->
+            <div class="data-summary">
+                <div class="summary-title">
+                    <i class="fas fa-list-ol" style="color:#2b6f9b;"></i> Detailed rankings — top 5
+                </div>
+                <ul class="ranking-list" id="rankingList">
+                    <!-- will be populated by js, but static fallback inside -->
+                </ul>
+            </div>
+        </main>
+
+        <!-- footer (flourish style) -->
+        <footer class="footer">
+            <div class="footer-left">
+                <i class="far fa-chart-bar"></i> Flourish • FIFA rankings
+            </div>
+            <div class="footer-right">
+                <a href="#"><i class="fas fa-download"></i> PNG</a>
+                <a href="#"><i class="fas fa-code"></i> </a>
+                <a href="#"><i class="fas fa-expand-alt"></i></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            // Sample FIFA ranking data (top 10)
+            const countries = [
+                { rank: 1, country: 'Argentina', flag: 'AR', points: 1875 },
+                { rank: 2, country: 'France', flag: 'FR', points: 1843 },
+                { rank: 3, country: 'Spain', flag: 'ES', points: 1798 },
+                { rank: 4, country: 'England', flag: 'GB', points: 1772 },
+                { rank: 5, country: 'Brazil', flag: 'BR', points: 1756 },
+                { rank: 6, country: 'Portugal', flag: 'PT', points: 1721 },
+                { rank: 7, country: 'Netherlands', flag: 'NL', points: 1699 },
+                { rank: 8, country: 'Belgium', flag: 'BE', points: 1680 },
+                { rank: 9, country: 'Italy', flag: 'IT', points: 1654 },
+                { rank: 10, country: 'Germany', flag: 'DE', points: 1632 }
+            ];
+
+            // Populate ranking list (top 5)
+            const listContainer = document.getElementById('rankingList');
+            if (listContainer) {
+                countries.slice(0,5).forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'ranking-item';
+                    li.innerHTML = `
+                        <span class="rank-number">#${item.rank}</span>
+                        <span class="country-flag">${item.flag}</span>
+                        <span class="country-name">${item.country}</span>
+                        <span class="points">${item.points}</span>
+                    `;
+                    listContainer.appendChild(li);
+                });
+            }
+
+            // Initialize chart
+            const ctx = document.getElementById('rankingChart')?.getContext('2d');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: countries.map(c => c.country),
+                        datasets: [
+                            {
+                                label: 'Points',
+                                data: countries.map(c => c.points),
+                                backgroundColor: '#2b6f9b',
+                                borderRadius: 6,
+                                barPercentage: 0.6,
+                                categoryPercentage: 0.7,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'Rank (inverted)',
+                                data: countries.map(c => 21 - c.rank), // just to show a secondary visual (mock)
+                                type: 'line',
+                                borderColor: '#d4742c',
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                pointBackgroundColor: '#d4742c',
+                                pointRadius: 4,
+                                tension: 0.1,
+                                yAxisID: 'y1',
+                                order: 0,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { mode: 'index', intersect: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 1500,
+                                max: 1900,
+                                grid: { color: '#eef2f6' },
+                                title: { display: false }
+                            },
+                            y1: {
+                                position: 'right',
+                                min: 0,
+                                max: 20,
+                                reverse: true,
+                                grid: { drawOnChartArea: false },
+                                ticks: { stepSize: 2, callback: (val) => 21 - val } // show actual rank
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Simulate interactivity: date select changes ranking (just for demo)
+            const dateSelect = document.getElementById('dateSelect');
+            if (dateSelect) {
+                dateSelect.addEventListener('change', (e) => {
+                    // In a real clone, you'd update chart data.
+                    // Here we just show a subtle alert (mobile friendly toast simulation)
+                    alert(`Data updated to ${e.target.value} (simulated)`);
+                });
+            }
+        })();
+    </script>
+
+    <!-- note: this is a design replica inspired by Flourish's FIFA rankings page. actual data and interactivity are simulated. -->
+</body>
+</html>
